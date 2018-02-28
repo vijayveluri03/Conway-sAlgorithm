@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" type="text/css" href="Content\Styles.css" />
+</head>
+<body onload="loadGame()">
+
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+
+ <!-- Support classes -->
+<script src="Scripts\StateManager.js"></script>
+<script src="Scripts\BasicUI.js"></script>
+<script src="Scripts\Utility.js"></script>
+
+<!-- Core class  -->
+<script src="Scripts\MainScript.js"></script>
+
+
+<script src="Scripts\Patterns.js"></script>
+<script src="Scripts\States.js"></script>
+<script src="Scripts\Board.js"></script>
+
+<span style="display:none;">
+    <!-- <img id="sudokuImage" src="Content\BG.png" onload="OnImageLoaded();"> -->
+</span>
+
+</p>
+
+
+<div id="wrapper">
+    <div id="title">
+        <a href="./Main.html">
+            Conway's Game of Life
+        </a>
+    </div>
+
+
+
+    <div id="canvas-div"><canvas id="canvas-game" ></canvas></div>
+
+
+    <div id="InformationGrp" >
+            <div class="box">
+                <div class="subtitle">Simulation information</div>
+            </div>
+    
+            <p class="info">
+                <abbr title="Simulation frame count">Simulation Frame</abbr>: <span id="simulationCount"></span> | 
+                <abbr title="Number of live cells">Live cells</abbr>: <span id="alivecount">0</span> | 
+                <abbr title="Current Generation">Generation</abbr>: <span id="generationCount">0</span> | 
+                <abbr title="Current Death">Death</abbr>: <span id="deathCount">0</span>
+            </p>
+            
+    </div>
+    
+
+    <div id="controlGrp" >
+        <div class="box">
+            <div class="subtitle">Control</div>
+        </div>
+
+        
+        <div class="button" id="start">Start</div>
+        <div class="button" id="reset">Reset</div>
+
+
+        <div class = "paddingusedforbutton">
+            <img src="Content/speeddial.svg" alt="" width="20" height="20">
+            <input id="speed" min="0.5" max="30" step="0.5" value="10" title="speed dial" type="range" onchange="OnSpeedSelectionChanged()" >
+
+
+            <img src="Content/grid.svg" alt="" width="20" height="20">
+            <input id="zoom" min="5" max="30" value="10" step="1" title="grid size" type="range" onchange="OnZoomSelectionChanged()">
+        </div>
+        
+        <div class = "cl smallBoxPadding">&nbsp;</div>
+
+        <div class="button" id="next">Simulate one frame</div>
+        <div class = "cl smallBoxPadding">&nbsp;</div>
+
+        <p class="info"> <!-- change this display to visible when we have copy paste logic working -->
+            <b>Help ?</b>
+        </p>
+        <p class="info"> <!-- change this display to visible when we have copy paste logic working -->
+            Select Start to start simulation. You can adjust the Speed of the simulation and Zoom level. <br>
+            Try out patterns from below. Or you can create your own pattern by tapping on simulation panel.
+        </p>
+
+    </div>
+    
+    <div class = "cl smallBoxPadding">&nbsp;</div>
+    <div class = "cl smallBoxPadding">&nbsp;</div>
+
+    <div id="InformationGrp" >
+        <div class="box">
+            <div class="subtitle">Patterns</div>
+        </div>
+
+        <form>
+            <select id="patterns" onchange="OnPatternSelectionChanged()"></select>
+        </form>
+
+        <div class = "cl smallBoxPadding">&nbsp;</div>
+
+        <p class="info"  style="display:none;"> <!-- change this display to visible when we have copy paste logic working -->
+            <abbr title="Mouse position">Mouse Position</abbr>: <span id="MousePos"></span>
+        </p>
+
+        <p class="info"> <!-- change this display to visible when we have copy paste logic working -->
+            <b>How to use patterns?</b>
+        </p>
+        <p class="info"> <!-- change this display to visible when we have copy paste logic working -->
+            Select any pattern from above and tap on the simulation panel. This will insert that particular pattern at the tap location.
+        </p>
+
+    </div>
+    <div id="controlGrp" >
+            <div class="box">
+                <div class="subtitle">Misc</div>
+            </div>
+
+        <p class="info"> <!-- change this display to visible when we have copy paste logic working -->
+            If you need any more patterns/ functionality, let me know. 
+            Copy/Paste is coming soon. 
+        </p>
+
+    </div>
+                
+</div>
+
+</body>
+</html>

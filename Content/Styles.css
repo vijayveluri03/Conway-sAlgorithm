@@ -1,0 +1,147 @@
+#wrapper 
+{
+margin: auto;
+width: 800px;
+}
+abbr {
+    border-bottom: 1px dotted #000000;
+    cursor: help;
+  }
+  
+  
+  #hint {
+    background: #FFFF66;
+    padding: 6px 10px;
+    float: right;
+  }
+
+body {
+    font-family: "Verdana", sans-serif;
+    font-size: 14px;
+    background-color: #ccc;
+    color: #000000;
+  }
+
+  h4 {
+    border-bottom: 1px solid #BBBBBB;
+    margin-bottom: 4px;
+    margin-top: 30px;
+  }
+
+  h3 {
+    border-bottom: 1px solid #BBBBBB;
+    margin-bottom: 4px;
+    margin-top: 30px;
+  }
+
+a {
+    color: blue;
+  }
+
+  #title {
+    font: bold 46px/40px "Helvetica", "Arial", sans-serif;
+    background: #BBBBBB;
+    letter-spacing: -2px;
+    margin: 0 0 10px 0;
+    padding: 6px 6px 8px;
+  }
+
+  #title a {
+    text-decoration: none;
+    color: #222;
+  }
+
+canvas 
+{
+    border:5px solid #006699;
+    background-color: #f1f1f1;
+}
+
+ #canvas-div 
+{
+    padding: 0;
+    margin: 0;
+    width: 1000px;
+}
+
+.cl {
+    line-height: 0;
+    clear: both;
+  }
+
+  .box .subtitle {
+    font: normal 20px "Verdana", sans-serif;
+    background: #aaa;
+    letter-spacing: 0px;
+    margin: 0 0 8px 0;
+    color: #222;
+    padding: 2px 4px 1px 4px;
+    clear: both;
+  }
+  
+  .box .info {
+    margin: 4px 0;
+  }
+
+  .increasedFontSize
+  {
+    font-size: 16px;
+    line-height: 18px;
+  }
+  .smallBoxPadding { 
+    
+    padding: 2px 2px 3px 0px;
+    /* border:2px;
+    border-style: dotted; */
+
+  }
+  .boxPadding { 
+    
+    padding: 2px 2px 10px 0px;
+    /* border:2px;
+    border-style: dotted; */
+
+  }
+
+  .paddingusedforbutton {
+      border: 2px 2px 2px 2px;
+    font-size: 24px;
+    line-height: 26px;
+    padding: 2px 6px 5px 6px;
+    margin: 0 10px 0 0;
+    float: left;
+  }
+
+
+  .button {
+    border-bottom: 2px solid #333333;
+    border-right: 2px solid #333333;
+    border-top: 2px solid #AAAAAA;
+    border-left: 2px solid #AAAAAA;
+    background: #FFFFFF;
+    font-size: 24px;
+    line-height: 26px;
+    padding: 2px 6px 5px 6px;
+    margin: 0 15px 0 0;
+    float: left;
+  }
+  
+  .button a {
+    text-decoration: none;
+    color: #000000;
+  }
+  
+  .button:hover {
+    border-bottom: 2px solid #AAAAAA;
+    border-right: 2px solid #AAAAAA;
+    border-top: 2px solid #333333;
+    border-left: 2px solid #333333;
+    cursor: pointer;
+  }
+
+/* #canvas-container {
+    background-color: #999;
+    padding: 8px;
+    border: 3px solid lightgrey;
+    width: 803px;
+} */
