@@ -76,11 +76,14 @@ function Inherit(child, parent)
 function AttachClickCallbackForDOMelements ( elementID, delegateMethodName )
 {
     var element = document.getElementById(elementID);
+
+    if ( delegateMethodName != undefined && delegateMethodName != null )
+    {
         if (element.addEventListener) 
             element.addEventListener("click", delegateMethodName, false);
         else if (element.attachEvent) 
             element.attachEvent('onclick', delegateMethodName);
-    
+    }
     return element;
 }
 /**

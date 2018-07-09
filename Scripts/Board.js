@@ -18,6 +18,10 @@ function Board( )
     this.totalDeathCount = 0;
     this.currentPattern = null;
     this.mousePosition = null;
+    this.previousToggledBlockX = -1;
+    this.previousToggledBlockY = -1;
+    this.originOffset = null;
+    
 
     this.Init = function( boardSizeX, boardSizeY )
     {
@@ -41,20 +45,77 @@ function Board( )
         this.blockWidth = x;
         this.blockGap = this.blockWidth / 10;
     }
+    this.GetRowSize = function ()
+    {
+        return this.map.totalX;
+    }
+    this.GetColSize = function ()
+    {
+        return this.map.totalY;
+    }
     this.SetPattern = function ( pattern )
     {
         this.currentPattern = pattern;
+    }
+    this.SetOriginOffset = function ( x, y )
+    {
+        this.originOffset = { "x":x, "y":y };
     }
     this.ForceMakeAlive = function ( x, y, alive )
     {
         boardblock = this.map.GetMeDataAt(x, y);
         if ( boardblock != null )
         {
-            boardblock.MakeMeAliveNextFrame ( true );
+            boardblock.MakeMeAliveNextFrame ( alive );
             boardblock.SwapFrames ();
         }
         else 
             alert ( "ERROR?" );
+    }
+    this.GetDataForExport = function ( startX, startY, endX, endY, wrtX, wrtY )
+    {
+        alert( "from (" + startX + "," + startY + ") " + "to (" +  endX + "," + endY + ") ");
+
+        var dataForExport = [];
+        for ( let y = startY; y <= endY; y ++ ) 
+        {
+            for ( let x = startX; x <= endX; x++ )
+            {
+                this.currentBlock = this.map.GetMeDataAt ( x, y );
+                
+                if ( this.currentBlock != null && this.currentBlock.isAlive)
+                {
+                    dataForExport.push ( 
+                        {
+                            "x": this.currentBlock.x - wrtX,
+                            "y":(this.currentBlock.y - wrtY) - ( endY - startY ),
+                            "alive": this.currentBlock.isAlive
+                        }
+                    );
+                }
+            }
+        }
+        return dataForExport;
+    }
+
+    this.ClearDataWithInBounds = function ( startX, startY, endX, endY )
+    {
+        alert( "from (" + startX + "," + startY + ") " + "to (" +  endX + "," + endY + ") ");
+
+        var dataForExport = [];
+        for ( let y = startY; y <= endY; y ++ ) 
+        {
+            for ( let x = startX; x <= endX; x++ )
+            {
+                this.currentBlock = this.map.GetMeDataAt ( x, y );
+                
+                if ( this.currentBlock != null && this.currentBlock.isAlive)
+                {
+                    this.currentBlock.MakeMeAliveInstantly( false );
+                }
+            }
+        }
+        return dataForExport;
     }
 
     this.SimulateNextFrame = function ()
@@ -146,6 +207,12 @@ function Board( )
         let startX = ( MyApplicationInstance.GameWidth() / 2 ) - ( ( this.map.totalX * ( this.blockWidth + this.blockGap ) + this.blockGap )/ 2 );
         let startY = ( MyApplicationInstance.GameHeight() / 2 ) + ( ( this.map.totalY * ( this.blockWidth + this.blockGap ) + this.blockGap )/ 2 );
 
+        if ( this.originOffset != null )
+        {
+            startX += ( this.blockWidth + this.blockGap ) * this.originOffset.x;
+            startY += ( this.blockWidth + this.blockGap ) * (-this.originOffset.y);
+        }
+
         let currentX;
         let currentY;
 
@@ -189,6 +256,7 @@ function Board( )
                 this.currentBlock.SetCoordinates ( currentX , currentY, currentX + this.blockWidth, currentY + this.blockWidth );
 
                 renderer.context.fillRect( currentX, currentY, this.blockWidth, this.blockWidth);
+
                 currentX += this.blockWidth + this.blockGap;
             }
             currentY -= this.blockWidth + this.blockGap;
@@ -201,12 +269,32 @@ function Board( )
                  this.debugBlock.x2 - this.debugBlock.x1, this.debugBlock.y2 - this.debugBlock.y1);
         }
     }
-    this.OnMouseDown = function( x, y )
+
+    this.OnMouseDown = function( touchX, touchY )
     {
 
     }
+
+    this.OnMouseMove = function ( touchX, touchY, isMousePressed )
+    {
+        if ( isMousePressed  )
+            this.ToggleBlock(touchX, touchY);
+    }
+
     this.OnMouseUp = function( touchX, touchY )
     {
+        this.ToggleBlock(touchX, touchY);
+        this.MarkThisBlockAsPreviouslyToggled( null ); //on finger lift, clear previous toggle history
+    }
+
+
+    this.ToggleBlock = function ( touchX, touchY )
+    {
+        this.previousToggledBlockX = touchX;
+        this.previousToggledBlockY = touchY;
+
+
+
         for ( let y = this.map.minYInclusive; y <= this.map.maxYInclusive; y ++ ) 
         {
             for ( let x = this.map.minXInclusive; x <= this.map.maxXInclusive; x++ )
@@ -221,6 +309,14 @@ function Board( )
                     if ( touchY >= this.currentBlock.y1 && touchY <= this.currentBlock.y2 )
                     {
                         this.mousePosition = { "x":x, "y":y };
+
+                        // if this is already previously toggled in this mouse press session, ignore it for now.
+                        if ( !this.CanIToggleThisBlock ( this.currentBlock ))
+                        {
+                            return;
+                        }
+
+                        this.MarkThisBlockAsPreviouslyToggled ( this.currentBlock );
                         if ( this.currentPattern == null )
                         {
                             this.currentBlock.MakeMeAliveInstantly ( !this.currentBlock.isAlive );
@@ -232,11 +328,14 @@ function Board( )
                         }
                         else 
                         {
-                            for ( let patternCount = 0; patternCount < this.currentPattern.base.aliveTiles.length; patternCount ++ )
+                            if ( this.currentPattern.base != null && this.currentPattern.base.aliveTiles != null )
                             {
-                                let offset = this.currentPattern.base.aliveTiles[patternCount];
-                                this.currentBlock = this.map.GetMeDataAt ( x + offset.x , y + offset.y);
-                                this.currentBlock.MakeMeAliveInstantly ( true );
+                                for ( let patternCount = 0; patternCount < this.currentPattern.base.aliveTiles.length; patternCount ++ )
+                                {
+                                    let offset = this.currentPattern.base.aliveTiles[patternCount];
+                                    this.currentBlock = this.map.GetMeDataAt ( x + offset.x , y + offset.y);
+                                    this.currentBlock.MakeMeAliveInstantly ( offset.alive );
+                                }
                             }
                         }
                         return;
@@ -246,6 +345,22 @@ function Board( )
         }
     }
 
+
+    this.CanIToggleThisBlock = function ( block )
+    {
+        if ( block == this.previousToggledBlock && this.previousToggledBlock != null )
+        {
+            return false;;
+        }
+        
+        return true;
+    }
+    this.MarkThisBlockAsPreviouslyToggled = function( block )
+    {
+        this.previousToggledBlock = block;
+    }
+
+    this.previousToggledBlock = null;
     this.currentBlock = null;
     this.debugBlock = null;
     this.tempAliveCount = 0;

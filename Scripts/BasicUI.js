@@ -51,6 +51,10 @@ function UI ()
         }
     }
 
+    this.OnMouseMove = function ( x, y, isMouseDown )
+    {
+
+    }
     this.OnMouseUp  = function (x, y) 
     {
         if ( !this.isVisible )
@@ -137,6 +141,10 @@ function Button ( )
         }
     }
 
+    this.OnMouseMove = function ( x, y, isMouseePressed )
+    {
+        
+    }
     this.OnMouseUp = function ( x, y )
     {
         if ( !this.isVisible )

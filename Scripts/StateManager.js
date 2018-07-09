@@ -62,6 +62,11 @@ function StateManager ()
         if ( this.CurrentState() != null )
             this.CurrentState().OnMouseDown (x,y);
     }
+    this.OnMouseMove = function ( x, y, isMousePressed )
+    {
+        if ( this.CurrentState () != null )
+            this.CurrentState().OnMouseMove(x, y, isMousePressed );
+    }
     this.OnMouseUp = function ( x, y )
     {
         if ( this.CurrentState() != null )

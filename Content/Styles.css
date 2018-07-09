@@ -1,8 +1,28 @@
-#wrapper 
+.wrapper 
 {
 margin: auto;
 width: 800px;
+/* Debug */
+/* border:1px solid black; */
 }
+
+.displayInline
+{
+  /* display: inline; */
+}
+
+.maxwrapper 
+{
+margin: auto;
+width: 100%;
+
+text-align:center;
+
+/* Debug  */
+/* border:1px solid black; */
+}
+
+
 abbr {
     border-bottom: 1px dotted #000000;
     cursor: help;
@@ -57,13 +77,6 @@ canvas
     background-color: #f1f1f1;
 }
 
- #canvas-div 
-{
-    padding: 0;
-    margin: 0;
-    width: 1000px;
-}
-
 .cl {
     line-height: 0;
     clear: both;
@@ -113,7 +126,7 @@ canvas
   }
 
 
-  .button {
+  .button_enabled {
     border-bottom: 2px solid #333333;
     border-right: 2px solid #333333;
     border-top: 2px solid #AAAAAA;
@@ -125,18 +138,53 @@ canvas
     margin: 0 15px 0 0;
     float: left;
   }
+  .inputfield
+  {
+    border-bottom: 2px solid #333333;
+    border-right: 2px solid #333333;
+    border-top: 2px solid #AAAAAA;
+    border-left: 2px solid #AAAAAA;
+    background: #FFFFFF;
+
+
+    font-size: 24px;
+    line-height: 26px;
+    padding: 2px 6px 5px 6px;
+    margin: 0 15px 0 0;
+    
+    float: left;
+
+  }
+
+  .textFloat
+  {
+    float: left;
+
+  }
   
-  .button a {
+  .button_enabled a {
     text-decoration: none;
     color: #000000;
   }
   
-  .button:hover {
+  .button_enabled:hover {
     border-bottom: 2px solid #AAAAAA;
     border-right: 2px solid #AAAAAA;
     border-top: 2px solid #333333;
     border-left: 2px solid #333333;
     cursor: pointer;
+  }
+  .button_disabled {
+    border-bottom: 2px solid #333333;
+    border-right: 2px solid #333333;
+    border-top: 2px solid #AAAAAA;
+    border-left: 2px solid #AAAAAA;
+    background: #AAAAAA;
+    font-size: 24px;
+    line-height: 26px;
+    padding: 2px 6px 5px 6px;
+    margin: 0 15px 0 0;
+    float: left;
   }
 
 /* #canvas-container {

@@ -7,6 +7,10 @@ const renderWidth = 800;
 const renderHeight = 500;
 const MAX_ROWS_COLS = 9;
 
+let isWindowSizeScaleChangeEnabled = true;
+let windowSizeScale = 1.0;
+
+
 const scaleUp = 1.0;
 const gameSpeed = 1;
 
@@ -14,10 +18,12 @@ const gameSpeed = 1;
 
 
 // Private
+
 let lastUpdate = Date.now();
 let dt = 0;
 var touchVar = null;
 let isGamePaused = false;
+let isMousePressed = false;
 
 
 
@@ -33,6 +39,7 @@ function loadGame()
 
     //renderer.canvas.addEventListener('click', OnMouseClicked,  false);
     renderer.canvas.addEventListener('mousedown', OnMouseDown,  false);
+    renderer.canvas.addEventListener('mousemove', OnMouseMove,  false);
     renderer.canvas.addEventListener('mouseup', OnMouseUp,  false);
 
     InitUI( renderer );
@@ -52,13 +59,13 @@ function OnImageLoaded()
 // My application class which has all important links
 var MyApplicationInstance = 
 {
-    gameWidth : renderWidth,
-    gameHeight : renderHeight,
+    // gameWidth : renderWidth,
+    // gameHeight : renderHeight,
 
     currentTime : 0,
 
-    GameWidth : function() { return renderWidth; },
-    GameHeight : function() { return renderHeight; },
+    GameWidth : function() { return isWindowSizeScaleChangeEnabled ? renderWidth * windowSizeScale : renderWidth; },
+    GameHeight : function() { return isWindowSizeScaleChangeEnabled ? renderHeight * windowSizeScale : renderHeight; },
 
     StateManager : new StateManager(),
 
@@ -116,6 +123,12 @@ var renderer =
     ClearScreen : function() 
     {
         this.context.clearRect(0, 0, this.canvas.width * scaleUp, this.canvas.height * scaleUp);
+    },
+
+    SetWindowSize: function ( value )
+    {
+        windowSizeScale = value;
+        this.InitializeGraphics( MyApplicationInstance.GameWidth(), MyApplicationInstance.GameHeight() );
     },
     RenderBox : function( box, point = null )
     {
@@ -175,7 +188,10 @@ var renderer =
 }
 
 
-
+function SetWindowScaleSize ( value )
+{
+    renderer.SetWindowSize(value);
+}
 
 // ****************************
 // Application Touch and key board
@@ -202,6 +218,7 @@ function OnKeyPress ( e)
 
 function OnMouseDown(evt) 
 {
+    isMousePressed = true;
     var mousePos = GetMousePosFromCanvas( renderer.canvas, evt);
 
     if ( renderer.InvertYEnabled() )
@@ -214,8 +231,23 @@ function OnMouseDown(evt)
 
     //console.log('OnMouseDown ' + mousePos.x + " " + mousePos.y );
 }
+function OnMouseMove(evt) 
+{
+    var mousePos = GetMousePosFromCanvas( renderer.canvas, evt);
+
+    if ( renderer.InvertYEnabled() )
+    {
+        mousePos.y = renderer.Height() - mousePos.y;
+    }
+
+    if ( MyApplicationInstance.StateManager != null )
+        MyApplicationInstance.StateManager.OnMouseMove ( mousePos.x, mousePos.y, isMousePressed );
+
+    //console.log('OnMouseDown ' + mousePos.x + " " + mousePos.y );
+}
 function OnMouseUp(evt) 
 {
+    isMousePressed = false;
     var mousePos = GetMousePosFromCanvas( renderer.canvas, evt);
     if ( renderer.InvertYEnabled() )
     {

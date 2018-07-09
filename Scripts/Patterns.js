@@ -12,23 +12,41 @@ var patterns = {
 "Crazy - DieHard": Crazy_DieHard,
 "Crazy - Acorn": Crazy_Acorn,
 
-// "Copy - Paste": Copy_Paste,
+"From Imported Data": ImportedData,
 
 };
+
+const IMPORTED_DATA_KEY_NAME = "From Imported Data";
+
+function ImportExportBlock ( x, y, alive )
+{
+    this.x = x;
+    this.y = y;
+    this.alive = alive;
+}
 
 
 function patternBase ()
 {
     this.aliveTiles = [];
 
-    this.AddAliveTimes = function ( x, y )
+    this.AddAliveTimes = function ( x, y, alive )
     {
+        // assigning default value
+        if (alive === undefined) 
+            alive = true;
+
         this.aliveTiles.push ( 
             {
                 "x":x,
-                "y":y
+                "y":y,
+                "alive":alive
             }
         );
+    }
+    this.Clear = function ()
+    {
+        this.aliveTiles = [];
     }
 }
 
@@ -176,15 +194,29 @@ function Crazy_Acorn ()
     }
 }
 
-function Copy_Paste ()
+
+
+function ImportedData ()
 {
-    this.Init = function ()
+    this.Init = function ( import_data /* array of ImportExportBlock */ )
     {
-        console.log("Inside Copy_Paste");
+        console.log("Inside Import_Pattern");
         this.base = new patternBase;
 
-        this.base.AddAliveTimes ( 1, -1 );
+        if ( import_data == null || import_data.length == 0 )
+            return;
+
+        for ( var i = 0; i < import_data.length; i++ )
+        {
+                this.base.AddAliveTimes ( import_data[i].x, import_data[i].y, import_data[i].alive );
+        }
 
         // console.log ( this.base.aliveTiles[0].x );
     }
+
+    this.Clear = function ( )
+    {
+        this.base.Clear();
+    }
 }
+
