@@ -21,6 +21,8 @@
 <script src="Scripts\States.js"></script>
 <script src="Scripts\Board.js"></script>
 
+
+
 <span style="display:none;">
     <!-- <img id="sudokuImage" src="Content\BG.png" onload="OnImageLoaded();"> -->
 </span>
@@ -34,6 +36,23 @@
             Conway's Game of Life
         </a>
     </div>
+
+    <h3>The Game</h3>
+
+    <p>The Game of Life is not your typical computer game. It is a cellular
+        automaton, and was invented by Cambridge mathematician John Conway. <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Wiki</a></p>
+    <h3>The Rules</h3>
+
+    <dl>
+        <dt><b>For a space that is populated:</b>
+        <dd>Each cell with one or no neighbors dies, as if by solitude.
+        <dd>Each cell with four or more neighbors dies, as if by overpopulation.
+        <dd>Each cell with two or three neighbors survives.
+        <dt><b>For a space that is empty or unpopulated</b>
+        <dd>Each cell with three neighbors becomes populated.
+    </dl>
+
+
 
 </div>
 
@@ -73,11 +92,14 @@
 
         <div class = "paddingusedforbutton">
             <img src="Content/speeddial.svg" alt="" width="20" height="20">
-            <input id="speed" min="0.5" max="30" step="0.5" value="10" title="speed dial" type="range" onchange="OnSpeedSelectionChanged()" >
+            <input id="speed" min="0.5" max="30" step="0.5" value="10" title="Simulation Speed" type="range" onchange="OnSpeedSelectionChanged()" >
 
 
             <img src="Content/grid.svg" alt="" width="20" height="20">
-            <input id="zoom" min="2" max="30" value="5" step="1" title="grid size" type="range" onchange="OnZoomSelectionChanged()">
+            <input id="zoom" min="2" max="30" value="12" step="1" title="Zoom Level" type="range" onchange="OnZoomSelectionChanged()">
+
+            <img src="Content/space.svg" alt="" width="20" height="20">
+            <input id="gap" min="1" max="10" value="1" step="1" title="gap between cells" type="range" onchange="OnGapSelectionChanged()">
         </div>
         
         <div class = "cl smallBoxPadding">&nbsp;</div>
@@ -85,18 +107,17 @@
         <div class="button_enabled" id="next">Simulate one frame</div>
         <div class = "cl smallBoxPadding">&nbsp;</div>
 
-        <input class="inputfield" id="DisplaceXValue" type="text" maxlength="4" size="4">
-        <input class="inputfield" id="DisplaceYValue" type="text" maxlength="4" size="4">
-        <div class="button_enabled" id="SetOriginOffset">Move</div>
-
 
         <div class = "cl smallBoxPadding">&nbsp;</div>
         <p class="info"> <!-- change this display to visible when we have copy paste logic working -->
             <b>Help ?</b>
         </p>
         <p class="info"> <!-- change this display to visible when we have copy paste logic working -->
-            Select Start to start simulation. You can adjust the Speed of the simulation and Zoom level. <br>
-            Try out patterns from below. Or you can create your own pattern by tapping on simulation panel.
+            Press Start to start simulation. <br><br>
+            Or, ∂Choose a pattern from the pull-down menu or make one yourself by clicking on
+            the cells with a mouse. A new generation of cells (corresponding to one
+            iteration of the rules) is initiated by the 'Simulate Once' button. The 'Start'
+            button advances the game by several generations.
         </p>
 
     </div>
@@ -114,6 +135,14 @@
         </form>
 
         <div class = "cl smallBoxPadding">&nbsp;</div>
+        <p class="info"> <!-- change this display to visible when we have copy paste logic working -->
+            <b>How to use patterns?</b>
+        </p>
+        <p class="info"> <!-- change this display to visible when we have copy paste logic working -->
+            Select any pattern from above and tap on the simulation panel. This will insert that particular pattern at the tap location.
+        </p>
+
+
 
         <form>
             <input type="radio"  name="exportimport" id="ExportBtn" value="Export">Export
@@ -137,16 +166,22 @@
         <form   id="TextAreaGroup" style="display:none;"><!-- change this display to visible when we have copy paste logic working -->
             <div class = "cl smallBoxPadding">&nbsp;</div>
             <textarea id="importExportTextArea" class="inputfield" rows="4"></textarea>
+
+            <div class = "cl smallBoxPadding">&nbsp;</div>
+
+            <h3>Export and Import Help:</h3>
+
+            <p>To export you need to enter mouse position "From" and "To". You can find that information under "Simulation information".</p>
+            <p>Clicking on Export button generates export-data which can be copied and saved. You can use this code to import your pattern again.</p>
+            <p>After you click import, your imported pattern is copied into the program. To use it, select "From imported data" under patterns pull-down menu. Now, click anywhere in simulation window to paste your imported pattern.</p>
+        
         </form>
 
 
         <div class = "cl smallBoxPadding">&nbsp;</div>
-        <p class="info"> <!-- change this display to visible when we have copy paste logic working -->
-            <b>How to use patterns?</b>
-        </p>
-        <p class="info"> <!-- change this display to visible when we have copy paste logic working -->
-            Select any pattern from above and tap on the simulation panel. This will insert that particular pattern at the tap location.
-        </p>
+        <div class = "cl smallBoxPadding">&nbsp;</div>
+
+
 
     </div>
     <div id="controlGrp" >
@@ -155,17 +190,32 @@
             </div>
 
         
-            <div class="button_enabled" id="small">Small</div>
-            <div class="button_enabled" id="medium">Medium</div>
-            <div class="button_enabled" id="large">Large</div>
+            <div class="button_enabled" id="smallWindowButton">Small</div>
+            <div class="button_enabled" id="mediumWindowButton">Medium</div>
+            <div class="button_enabled" id="largeWindowButton">Large</div>
+            <div class="button_enabled" id="xlargeWindowButton">XLarge</div>
     
-            <p class="info"> <!-- change this display to visible when we have copy paste logic working -->
-                <abbr title="Cell count. Rows * Coloumns">Total Cell Count</abbr>: <span id="CellCount2"></span>
-            </p>
-
             <div class = "cl smallBoxPadding">&nbsp;</div>
+
+            <input class="inputfield" id="GridSizeX" type="text" maxlength="4" size="4" value="150">
+            <input class="inputfield" id="GridSizeY" type="text" maxlength="4" size="4" value="100">
+            <div class="button_enabled" id="SetGridSize">Set Grid size</div>
+    
+            <div class = "cl smallBoxPadding">&nbsp;</div>
+
+            <input class="inputfield" id="DisplaceXValue" type="text" maxlength="4" size="4"  value="0">
+            <input class="inputfield" id="DisplaceYValue" type="text" maxlength="4" size="4" value="0">
+            <div class="button_enabled" id="SetOriginOffset">Move Grid</div>
+    
+            <div class = "cl smallBoxPadding">&nbsp;</div> 
+
+            <div class="button_enabled" id="Theme1Button">Theme 1</div>
+            <div class="button_enabled" id="Theme2Button">Theme 2</div>
+            <div class="button_enabled" id="Theme3Button">Theme 3</div>
+
+
         
-            
+            <div class = "cl smallBoxPadding">&nbsp;</div> 
 
         <p class="info"> <!-- change this display to visible when we have copy paste logic working -->
             Let me know if you need a specific pattern or any feature.
@@ -176,5 +226,8 @@
                 
 </div>
 
+
+
 </body>
+
 </html>

@@ -205,15 +205,21 @@ function checkDown(e)
 function checkUp(e)
 {
     touchVar = undefined;
+    prevKey = 'a';
     //console.log("here2");
 }
 
+var prevKey = 'a';
 function OnKeyPress ( e) 
 {
     if ( e == null || e == undefined )
         return;
 
+    if ( prevKey == e.keyCode )
+        return;
+
     MyApplicationInstance.StateManager.OnKeyPress ( e.keyCode );
+    prevKey = e.keyCode;
 }
 
 function OnMouseDown(evt) 
@@ -295,6 +301,13 @@ function OnZoomSelectionChanged()
     // This is crazy hack ... 
     MyApplicationInstance.StateManager.CurrentState().OnZoomChanged();
 }
+
+function OnGapSelectionChanged()
+{
+    // This is crazy hack ... 
+    MyApplicationInstance.StateManager.CurrentState().OnGapChanged();
+}
+
 
 // Utility for ingame
 

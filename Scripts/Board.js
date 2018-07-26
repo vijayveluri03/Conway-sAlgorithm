@@ -6,11 +6,12 @@ function Board( )
 {
     this.map = null;
     this.blockWidth = 10;
-    this.blockGap = this.blockWidth / 10;
-    this.notAliveColor = "#EEEEEE";
-    this.previouslyAliveColor = "#d7f9c7";
-    this.aliveColor = "#9898FF";
-    this.backGroundColor = "#cccccc"
+    this.blockGap = 0;
+    this.blockScale = 1;
+    this.notAliveColor = "#ffffff";     // these will be set dynamically
+    this.previouslyAliveColor = "#ffffff";   // these will be set dynamically
+    this.aliveColor = "#ffffff";   // these will be set dynamically
+    this.backGroundColor = "#ffffff"  // these will be set dynamically
     this.useTracks = false;
     this.simulationFrameCount = 0;
     this.totalAliveCount = 0;
@@ -28,6 +29,29 @@ function Board( )
         this.map = new CoordinateMap();
         this.map.Init ( boardSizeX, boardSizeY, BoardBlock );
     }
+
+    this.SetRenderColors = function( backgroundColor, notAliveColor, previouslyAliveColor, aliveColor )
+    {
+        this.backGroundColor = backgroundColor;
+        this.notAliveColor = notAliveColor;
+        this.previouslyAliveColor = previouslyAliveColor;
+        this.aliveColor = aliveColor;
+    }
+
+    this.DrawDefaultPattern = function ( patternObj, x, y  )
+    {
+        if ( patternObj.base != null && patternObj.base.aliveTiles != null )
+        {
+            for ( let patternCount = 0; patternCount < patternObj.base.aliveTiles.length; patternCount ++ )
+            {
+                let offset = patternObj.base.aliveTiles[patternCount];
+                this.currentBlock = this.map.GetMeDataAt ( x + offset.x , y + offset.y);
+                this.currentBlock.MakeMeAliveInstantly ( offset.alive );
+            }
+        }
+
+    }
+
     this.Reset = function () 
     {
         this.simulationFrameCount = 0;
@@ -43,8 +67,16 @@ function Board( )
     this.SetBlockSize = function ( x )
     {
         this.blockWidth = x;
-        this.blockGap = this.blockWidth / 10;
+        this.blockGap = this.blockWidth * this.blockScale/10;
+        
     }
+    this.SetBlockGap = function ( x )
+    {
+        this.blockScale = x;
+        this.blockGap = this.blockWidth * this.blockScale/10;
+        console.log("block gap:" + this.blockGap);
+    }
+
     this.GetRowSize = function ()
     {
         return this.map.totalX;
@@ -277,7 +309,7 @@ function Board( )
 
     this.OnMouseMove = function ( touchX, touchY, isMousePressed )
     {
-        if ( isMousePressed  )
+        if ( isMousePressed && this.currentBlock != null )
             this.ToggleBlock(touchX, touchY);
     }
 

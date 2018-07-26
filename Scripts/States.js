@@ -5,6 +5,7 @@ function SimulationState ()
 {
     this.board = null;
     this.boardScaleSize = 1;
+    this.keycodePreviouslyUsed = '';
 
     this.Start = function() 
     {
@@ -12,24 +13,36 @@ function SimulationState ()
         this.ui.Init ( true );
 
         this.currentBoardScale = -1;
-        this.ReCreateBoardWithSize ( 1, false );
+        this.ReCreateBoardWithSize ( 10, 10, false );
         
 
         this.speedRange = AttachClickCallbackForDOMelements ( "speed", null );
         this.zoomRange = AttachClickCallbackForDOMelements ( "zoom", null );
+        this.gapRange = AttachClickCallbackForDOMelements ( "gap", null );
         this.startStopButton = AttachClickCallbackForDOMelements ( "start", this.OnStartStopButtonPressed );
         this.nextStepButton = AttachClickCallbackForDOMelements ( "next", this.OnNextButtonPressed );
         this.resetButton = AttachClickCallbackForDOMelements ( "reset", this.OnResetButtonPressed );
 
         this.displaceOriginXTextField = AttachClickCallbackForDOMelements ( "DisplaceXValue" );
         this.displaceOriginYTextField = AttachClickCallbackForDOMelements ( "DisplaceYValue" );
-        this.displaceOriginButton = AttachClickCallbackForDOMelements ( "SetOriginOffset", this.SetOriginOffsetButtonPressed );
+        AttachClickCallbackForDOMelements ( "SetOriginOffset", this.SetOriginOffsetButtonPressed );
+
+        this.gridSizeXField = AttachClickCallbackForDOMelements ( "GridSizeX" );
+        this.gridSizeYField = AttachClickCallbackForDOMelements ( "GridSizeY" );
+        AttachClickCallbackForDOMelements ( "SetGridSize", this.SetGridSizeButtonPressed );
+
 
         this.patternButton = AttachClickCallbackForDOMelements ( "patterns", null );
 
-        this.smallWindowButton = AttachClickCallbackForDOMelements ( "small", function() { this.OnWindowSizeButtonPressed ("small") }.bind(this) );
-        this.mediumWindowButton = AttachClickCallbackForDOMelements ( "medium", function() { this.OnWindowSizeButtonPressed ("medium") }.bind(this) );
-        this.largeWindowButton = AttachClickCallbackForDOMelements ( "large", function() { this.OnWindowSizeButtonPressed ("large") }.bind(this) );
+        this.smallWindowButton = AttachClickCallbackForDOMelements ( "smallWindowButton", function() { this.OnWindowSizeButtonPressed ("small") }.bind(this) );
+        this.mediumWindowButton = AttachClickCallbackForDOMelements ( "mediumWindowButton", function() { this.OnWindowSizeButtonPressed ("medium") }.bind(this) );
+        this.largeWindowButton = AttachClickCallbackForDOMelements ( "largeWindowButton", function() { this.OnWindowSizeButtonPressed ("large") }.bind(this) );
+        this.xlargeWindowButton = AttachClickCallbackForDOMelements ( "xlargeWindowButton", function() { this.OnWindowSizeButtonPressed ("xlarge") }.bind(this) );
+
+        this.theme1Button = AttachClickCallbackForDOMelements ( "Theme1Button", function() { this.OnThemeButtonPressed (1) }.bind(this) );
+        this.theme2Button = AttachClickCallbackForDOMelements ( "Theme2Button", function() { this.OnThemeButtonPressed (2) }.bind(this) );
+        this.theme3Button = AttachClickCallbackForDOMelements ( "Theme3Button", function() { this.OnThemeButtonPressed (3) }.bind(this) );
+
 
         this.exportButton = AttachClickCallbackForDOMelements ( "ExportBtn", function() { this.OnExportImportClearRadioPressed ("Export") }.bind(this) );
         this.importButton = AttachClickCallbackForDOMelements ( "ImportBtn", function() { this.OnExportImportClearRadioPressed ("Import") }.bind(this) );
@@ -55,28 +68,36 @@ function SimulationState ()
         this.mousePosition = document.getElementById("MousePos");
 
         this.boardSize1 = document.getElementById("CellCount1");
-        this.boardSize2 = document.getElementById("CellCount2");
 
         this.OnSpeedChanged();
         this.OnZoomChanged();
+        this.OnGapChanged();
 
         this.OnWindowSizeButtonPressed("small");
+        this.SetGridSizeButtonPressed(null);
+        this.OnThemeButtonPressed(1);
+        this.SetDefaultPattern();
     }
 
-    this.ReCreateBoardWithSize = function ( scale, refreshZoomAndSpeed )
+    this.ReCreateBoardWithSize = function ( totalX, totalY, refreshZoomAndSpeed )
     {
-        if ( this.currentBoardScale != scale )
+        //if ( this.currentBoardScale != scale )
         {
-            this.currentBoardScale = scale;
+            //this.currentBoardScale = scale;
 
             this.board = new Board();
-            this.board.Init ( 75 * this.currentBoardScale, 50 * this.currentBoardScale);
+
+            totalX = Math.floor(totalX/2);// because init takes only half valuee 
+            totalY = Math.floor(totalY/2);
+            this.board.Init ( totalX, totalY);
 
             if ( refreshZoomAndSpeed )
             {
                 this.OnSpeedChanged();
                 this.OnZoomChanged();
+                this.OnGapChanged();
                 this.OnPatternSelected();
+                this.OnThemeButtonPressed(3);
             }
         }
     }
@@ -115,7 +136,6 @@ function SimulationState ()
         this.deathCount.innerHTML = this.board.totalDeathCount;
         this.mousePosition.innerHTML = this.board.mousePosition != null ? ( "(" + this.board.mousePosition.x + "," + this.board.mousePosition.y + ")") : "Tap to get position";
         this.boardSize1.innerHTML = "(" + (this.board.GetRowSize() - 1) + ", " + (this.board.GetColSize() - 1) + ")";   // am just doing -1 for visual purpose
-        this.boardSize2.innerHTML = this.boardSize1.innerHTML;
     }
 
     this.OnMouseDown = function( x, y )
@@ -137,10 +157,94 @@ function SimulationState ()
     }
     this.OnKeyPress = function ( keyCode )
     {
+        console.log("Keycode: " + keyCode);
+
+        if ( this.keycodePreviouslyUsed == keyCode )
+            return;
+
+
+        // if ( keyCode == '190')       //
+        // {
+        //     this.OnStartStopButtonPressed();
+        // }
+
+        if ( keyCode == '83')       //s -> start or stop
+        {
+            this.OnStartStopButtonPressed();
+        }
+        
+        if ( keyCode == '68')       // size small
+        {
+            this.OnResetButtonPressed();
+        }
+
+        // theme 
+
+        if ( keyCode == '49')       // theme 1
+        {
+            this.OnThemeButtonPressed(1);
+        }
+        if ( keyCode == '50')       // theme 2
+        {
+            this.OnThemeButtonPressed(2);
+        }
+        if ( keyCode == '51')       // theme 3
+        {
+            this.OnThemeButtonPressed(3);
+        }
+
+        // Size 
+
+        if ( keyCode == '81')       // size small
+        {
+            this.OnWindowSizeButtonPressed("small");
+        }
+        if ( keyCode == '87')       // size medium
+        {
+            this.OnWindowSizeButtonPressed("medium");
+        }
+        if ( keyCode == '69')       // size small
+        {
+            this.OnWindowSizeButtonPressed("large");
+        }
+        if ( keyCode == '82')       // size small
+        {
+            this.OnWindowSizeButtonPressed("xlarge");
+        }
+
+
+        if ( keyCode == '79')       // slower
+        {
+            this.speedRange.value = parseInt(this.speedRange.value) - 1;
+            this.OnSpeedChanged();
+        }
+        if ( keyCode == '80')       // fast
+        {
+            //console.log("hello " + this.speedRange.value);
+            this.speedRange.value = parseInt(this.speedRange.value) + 1;
+            this.OnSpeedChanged();
+            //console.log("hello2 " + this.speedRange.value);
+        }
+
+        if ( keyCode == '75')       // zoom
+        {
+            this.zoomRange.value = parseInt(this.zoomRange.value) - 1;
+            this.OnZoomChanged();
+        }
+        if ( keyCode == '76')       // zoom out
+        {
+            //console.log("hello " + this.speedRange.value);
+            this.zoomRange.value = parseInt(this.zoomRange.value) + 1;
+            this.OnZoomChanged();
+            //console.log("hello2 " + this.speedRange.value);
+        }
+
+        //this.keycodePreviouslyUsed = keyCode;
+
     }
     this.OnSpeedChanged = function() 
     {
-        var value = this.speedRange.value;
+        var value =  parseInt( this.speedRange.value);
 
         this.executeNextFrameAfter = 1/value;
         this.currentFrameTime = 0;
@@ -154,12 +258,25 @@ function SimulationState ()
         // }
     }.bind( this )
 
+    this.SetRenderColors = function ( backgroundColor, notAliveColor, previouslyAliveColor, aliveColor )
+    {
+        this.board.SetRenderColors( backgroundColor, notAliveColor, previouslyAliveColor, aliveColor );
+    }.bind(this);
+
     this.OnZoomChanged = function() 
     {
-        var value = this.zoomRange.value;
+        var value = parseInt( this.zoomRange.value);
 
         console.log ( "OnZoomChanged:" + ( (value*1)));
         this.board.SetBlockSize( ( (value*1)) );
+    }.bind( this )
+
+    this.OnGapChanged = function() 
+    {
+        var value = parseInt( this.gapRange.value);
+
+        console.log ( "OnGapChanged:" + ( (value*1)));
+        this.board.SetBlockGap( ( (value*1)) );
     }.bind( this )
 
     this.OnPatternSelected = function() 
@@ -178,6 +295,15 @@ function SimulationState ()
         }
 
     }.bind( this )
+
+    this.SetDefaultPattern = function ()
+    {
+        this.board.DrawDefaultPattern( 
+            patterns["Spaceship - LightWeight"],
+            -2,
+            2
+        );
+    }
 
     this.OnStartStopButtonPressed = function ( e )
     {
@@ -310,6 +436,12 @@ function SimulationState ()
         this.board.SetOriginOffset( parseInt ( this.displaceOriginXTextField.value ), parseInt( this.displaceOriginYTextField.value));
     }.bind( this )
 
+    this.SetGridSizeButtonPressed = function ( e )
+    {
+        console.log("gridSize:" + this.gridSizeXField.value + "," + this.gridSizeYField.value);
+        this.ReCreateBoardWithSize( parseInt ( this.gridSizeXField.value ), parseInt ( this.gridSizeYField.value ), true );
+    }.bind( this )
+
     this.OnWindowSizeButtonPressed = function ( e )
     {
         if ( e == "small")
@@ -317,24 +449,76 @@ function SimulationState ()
             this.smallWindowButton.className = "button_disabled";
             this.mediumWindowButton.className = "button_enabled";
             this.largeWindowButton.className = "button_enabled";
+            this.xlargeWindowButton.className = "button_enabled";
             SetWindowScaleSize(1.0);
-            this.ReCreateBoardWithSize(1.0, true );
         }
         else if ( e == "medium")
         {
             this.smallWindowButton.className = "button_enabled";
             this.mediumWindowButton.className = "button_disabled";
             this.largeWindowButton.className = "button_enabled";
+            this.xlargeWindowButton.className = "button_enabled";
             SetWindowScaleSize(1.35);
-            this.ReCreateBoardWithSize(3.0, true );
         }
         else if ( e == "large")
         {
             this.smallWindowButton.className = "button_enabled";
             this.mediumWindowButton.className = "button_enabled";
             this.largeWindowButton.className = "button_disabled";
+            this.xlargeWindowButton.className = "button_enabled";
             SetWindowScaleSize(1.75);
-            this.ReCreateBoardWithSize(4.0, true );
+        }
+        else if ( e == "xlarge")
+        {
+            this.smallWindowButton.className = "button_enabled";
+            this.mediumWindowButton.className = "button_enabled";
+            this.largeWindowButton.className = "button_enabled";
+            this.xlargeWindowButton.className = "button_disabled";
+            SetWindowScaleSize(2.0);
+        }
+
+    }.bind ( this )
+
+    this.OnThemeButtonPressed = function ( e )
+    {
+        if ( e == 1)
+        {
+            this.theme1Button.className = "button_disabled";
+            this.theme2Button.className = "button_enabled";
+            this.theme3Button.className = "button_enabled";
+            this.SetRenderColors
+            (
+                "#cccccc",  // background
+                "#EEEEEE",  // not alive color
+                "#d7f9c7",  // previously alive color
+                "#9898FF"   // alive color
+            );
+        }
+        else if ( e == 2)
+        {
+            this.theme1Button.className = "button_enabled";
+            this.theme2Button.className = "button_disabled";
+            this.theme3Button.className = "button_enabled";
+            this.SetRenderColors
+            (
+                "#555555",  // background
+                "#2f2f2f",  // not alive color
+                "#d7f9c7",  // previously alive color
+                "#ffffff"   // alive color
+            );
+        }
+        else if ( e == 3)
+        {
+            this.theme1Button.className = "button_enabled";
+            this.theme2Button.className = "button_enabled";
+            this.theme3Button.className = "button_disabled";
+            this.SetRenderColors
+            (
+                "#2f2f2f",  // background
+                "#2f2f2f",  // not alive color
+                "#d7f9c7",  // previously alive color
+                "#ffffff"   // alive color
+            );
         }
 
     }.bind ( this )
